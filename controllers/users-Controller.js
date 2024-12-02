@@ -4,15 +4,34 @@ export function signup(req, res) {
   try {
     const { username, email, password } = req.body;
 
-    // Basic validation
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    // Validate all fields are present and not empty/whitespace
+    if (!username?.trim() || !email?.trim() || !password?.trim()) {
+      return res
+        .status(400)
+        .json({ message: "All fields are required and cannot be empty" });
     }
 
-    // Check if user already exists (placeholder)
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ message: "Please provide a valid email address" });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ message: "Password must be at least 6 characters long" });
+    }
+
+    // Check if email is already taken
     const existingUser = findUserByEmail(email);
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res
+        .status(400)
+        .json({ message: "Email address is already registered" });
     }
 
     // Create new user
