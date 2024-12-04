@@ -11,7 +11,7 @@
   "author": "Anan Serbesa / @anan-serbesa",
   "license": "ISC",
   "dependencies": {
-    "better-sqlite3": "^11.6.0",
-    "Express": "^3.0.1"
+    "express": "^4.12.2",
+    "sqlite3": "^5.1.7"
   }
 }

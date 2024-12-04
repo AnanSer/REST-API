@@ -1,4 +1,4 @@
-import db from "../config/database.js";
+import db from "../database.js";
 
 export function createUser(userData) {
   const stmt = db.prepare(`

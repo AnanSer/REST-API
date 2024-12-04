@@ -1,11 +1,11 @@
-import Database from "better-sqlite3";
+import sqlite3 from "sqlite3";
 
-const db = new Database("database.sqlite", { verbose: console.log });
+const db = new sqlite3.Database("your-database.db");
 
 // Create users table
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
-    id TEXT PRIMARY KEY,
+    id TEXT  PRIMARY KEY,
     username TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,

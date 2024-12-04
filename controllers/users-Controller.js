@@ -1,6 +1,6 @@
 import { createUser, findUserByEmail } from "../models/user.js";
 
-export function signup(req, res) {
+function signup(req, res) {
   try {
     const { username, email, password } = req.body;
 
@@ -50,7 +50,7 @@ export function signup(req, res) {
   }
 }
 
-export function login(req, res) {
+function login(req, res) {
   try {
     const { email, password } = req.body;
 
@@ -85,4 +85,8 @@ export function login(req, res) {
   }
 }
 
-export { signup, login };
+export function deleteUser(req, res) {
+  // Implementation for deleting a user
+}
+
+export { signup, login, createUser };
