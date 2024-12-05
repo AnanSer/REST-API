@@ -1,10 +1,11 @@
 import express from "express";
+import cors from "cors";
 import userRoutes from "./routes/users.js";
 import db from "./database.js";
 
 const app = express();
 
-// Verify database connection
+app.use(cors());
 
 app.use(express.json());
 app.use("/users", userRoutes);

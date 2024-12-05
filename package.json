@@ -11,6 +11,7 @@
   "author": "Anan Serbesa / @anan-serbesa",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.12.2",
     "sqlite3": "^5.1.7"
   }
