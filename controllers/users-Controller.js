@@ -1,8 +1,9 @@
 import { createUser, findUserByEmail } from "../models/user.js";
 
-function signup(req, res) {
+async function signup(req, res) {
   try {
     const { username, email, password } = req.body;
+    console.log("Signup attempt with email:", email);
 
     // Validate all fields are present and not empty/whitespace
     if (!username?.trim() || !email?.trim() || !password?.trim()) {
@@ -27,7 +28,9 @@ function signup(req, res) {
     }
 
     // Check if email is already taken
-    const existingUser = findUserByEmail(email);
+    const existingUser = await findUserByEmail(email);
+    console.log("Existing user check:", existingUser);
+
     if (existingUser) {
       return res
         .status(400)
@@ -46,11 +49,12 @@ function signup(req, res) {
       },
     });
   } catch (error) {
+    console.error("Signup error:", error);
     res.status(500).json({ message: "Error creating user" });
   }
 }
 
-function login(req, res) {
+async function login(req, res) {
   try {
     const { email, password } = req.body;
 
@@ -61,14 +65,9 @@ function login(req, res) {
         .json({ message: "Email and password are required" });
     }
 
-    // Find user (placeholder)
-    const user = findUserByEmail(email);
+    // Verify credentials
+    const user = await verifyCredentials(email, password);
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // Check password (placeholder)
-    if (user.password !== password) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
@@ -81,12 +80,9 @@ function login(req, res) {
       },
     });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ message: "Error logging in" });
   }
 }
 
-export function deleteUser(req, res) {
-  // Implementation for deleting a user
-}
-
-export { signup, login, createUser };
+export { signup, login };

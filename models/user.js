@@ -1,6 +1,6 @@
 import db from "../database.js";
 
-export function createUser(userData) {
+export async function createUser(userData) {
   const stmt = db.prepare(`
     INSERT INTO users (id, username, email, password)
     VALUES (?, ?, ?, ?)
@@ -8,21 +8,44 @@ export function createUser(userData) {
 
   const userId = Math.random().toString(36).substr(2, 9);
 
-  stmt.run(
-    userId,
-    userData.username,
-    userData.email,
-    userData.password // Remember to hash this in production!
-  );
+  try {
+    const bcrypt = await import("bcryptjs");
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-  return {
-    id: userId,
-    username: userData.username,
-    email: userData.email,
-  };
+    stmt.run(userId, userData.username, userData.email, hashedPassword);
+    return {
+      id: userId,
+      username: userData.username,
+      email: userData.email,
+    };
+  } catch (error) {
+    console.error("Error creating user:", error);
+    throw error;
+  } finally {
+    stmt.finalize();
+  }
 }
 
 export function findUserByEmail(email) {
-  const stmt = db.prepare("SELECT * FROM users WHERE email = ?");
-  return stmt.get(email);
+  return new Promise((resolve, reject) => {
+    db.get("SELECT * FROM users WHERE email = ?", [email], (err, row) => {
+      if (err) {
+        console.error("Error finding user:", err);
+        reject(err);
+        return;
+      }
+      console.log("Found user:", row);
+      resolve(row);
+    });
+  });
+}
+
+export async function verifyCredentials(email, password) {
+  const user = await findUserByEmail(email);
+  if (!user) return null;
+
+  const bcrypt = await import("bcryptjs");
+  const isValid = await bcrypt.compare(password, user.password);
+
+  return isValid ? user : null;
 }
