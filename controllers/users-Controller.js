@@ -1,4 +1,9 @@
-import { createUser, findUserByEmail } from "../models/user.js";
+import {
+  createUser,
+  findUserByEmail,
+  verifyCredentials,
+} from "../models/user.js";
+import { generateToken } from "../util/auth.js";
 
 async function signup(req, res) {
   try {
@@ -38,7 +43,10 @@ async function signup(req, res) {
     }
 
     // Create new user
-    const newUser = createUser({ username, email, password });
+    const newUser = await createUser({ username, email, password });
+
+    // Generate JWT token
+    const token = generateToken(newUser);
 
     res.status(201).json({
       message: "User created successfully",
@@ -47,6 +55,7 @@ async function signup(req, res) {
         username: newUser.username,
         email: newUser.email,
       },
+      token,
     });
   } catch (error) {
     console.error("Signup error:", error);
@@ -57,6 +66,7 @@ async function signup(req, res) {
 async function login(req, res) {
   try {
     const { email, password } = req.body;
+    console.log("Login attempt for email:", email);
 
     // Basic validation
     if (!email || !password) {
@@ -67,9 +77,14 @@ async function login(req, res) {
 
     // Verify credentials
     const user = await verifyCredentials(email, password);
+    console.log("Verification result:", user);
+
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    // Generate JWT token
+    const token = generateToken(user);
 
     res.status(200).json({
       message: "Login successful",
@@ -78,10 +93,14 @@ async function login(req, res) {
         username: user.username,
         email: user.email,
       },
+      token,
     });
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Error logging in" });
+    console.error("Login error details:", error);
+    res.status(500).json({
+      message: "Error logging in",
+      details: error.message,
+    });
   }
 }
 
