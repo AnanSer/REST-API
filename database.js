@@ -1,7 +1,8 @@
+// database.js
+
 import sqlite3 from "sqlite3";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import bcrypt from "bcryptjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,18 +37,26 @@ const db = new sqlite3.Database(dbPath, (err) => {
         return;
       }
       console.log("Users table ready");
+    }
+  );
 
-      // Verify table exists
-      db.get(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='users'",
-        (err, row) => {
-          if (err) {
-            console.error("Error verifying table:", err);
-          } else {
-            console.log("Table verification:", row);
-          }
-        }
-      );
+  // Create events table if it doesn't exist
+  db.run(
+    `
+    CREATE TABLE IF NOT EXISTS events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      description TEXT,
+      address TEXT,
+      date TEXT NOT NULL
+    )
+  `,
+    (err) => {
+      if (err) {
+        console.error("Error creating events table:", err);
+        return;
+      }
+      console.log("Events table ready");
     }
   );
 });
