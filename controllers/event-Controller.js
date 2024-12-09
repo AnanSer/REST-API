@@ -1,19 +1,19 @@
 // event-Controller.js
 
 import {
-  createEvent as createEventModel,
-  editEvent as editEventModel,
-  deleteEvent as deleteEventModel,
-  getAllEvents as getAllEventsModel,
-  getEventById as getEventByIdModel,
+  createEvent,
+  editEvent,
+  deleteEvent,
+  getAllEvents,
+  getEventById,
 } from "../models/event.js";
 
 // Function to handle creating a new event
-export async function createEvent(req, res) {
+export async function create(req, res) {
   const { title, description, address, date } = req.body;
 
   try {
-    const newEvent = await createEventModel(title, description, address, date);
+    const newEvent = await createEvent(title, description, address, date);
     res.status(201).json(newEvent);
   } catch (error) {
     console.error("Error creating event:", error);
@@ -22,12 +22,12 @@ export async function createEvent(req, res) {
 }
 
 // Function to handle editing an existing event
-export async function editEvent(req, res) {
+export async function edit(req, res) {
   const eventId = parseInt(req.params.id);
   const updatedData = req.body;
 
   try {
-    const updated = await editEventModel(eventId, updatedData);
+    const updated = await editEvent(eventId, updatedData);
     if (updated) {
       res.status(200).json({ message: "Event updated successfully" });
     } else {
@@ -40,11 +40,11 @@ export async function editEvent(req, res) {
 }
 
 // Function to handle deleting an event
-export async function deleteEvent(req, res) {
+export async function deleteItem(req, res) {
   const eventId = parseInt(req.params.id);
 
   try {
-    const deleted = await deleteEventModel(eventId);
+    const deleted = await deleteEvent(eventId);
     if (deleted) {
       res.status(200).json({ message: "Event deleted successfully" });
     } else {
@@ -57,9 +57,9 @@ export async function deleteEvent(req, res) {
 }
 
 // Function to handle getting all events
-export async function getAllEvents(req, res) {
+export async function getAll(req, res) {
   try {
-    const events = await getAllEventsModel();
+    const events = await getAllEvents();
     res.status(200).json(events);
   } catch (error) {
     console.error("Error retrieving events:", error);
@@ -68,11 +68,11 @@ export async function getAllEvents(req, res) {
 }
 
 // Function to handle getting a single event by ID
-export async function getEventById(req, res) {
+export async function getSingle(req, res) {
   const eventId = parseInt(req.params.id);
 
   try {
-    const event = await getEventByIdModel(eventId);
+    const event = await getEventById(eventId);
     if (event) {
       res.status(200).json(event);
     } else {
