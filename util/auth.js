@@ -18,7 +18,7 @@ export function verifyToken(token) {
   return decoded;
 }
 
-export function requireAuth(req, res, next) {
+export function authenticate(req, res, next) {
   const token = req.headers.authorization;
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
