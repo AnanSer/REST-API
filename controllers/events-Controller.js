@@ -1,5 +1,3 @@
-// event-Controller.js
-
 import {
   createEvent,
   editEvent,
@@ -12,12 +10,21 @@ import {
 export async function create(req, res) {
   const { title, description, address, date } = req.body;
 
+  if (!title) {
+    return res.status(400).json({ message: "Title is required" });
+  }
+
+  // Add this line to include the title field in the request body
+  req.body.title = title;
+
   try {
-    const newEvent = await createEvent(title, description, address, date);
+    const newEvent = await createEvent(req.body);
     res.status(201).json(newEvent);
   } catch (error) {
     console.error("Error creating event:", error);
-    res.status(500).json({ message: "Error creating event" });
+    res
+      .status(500)
+      .json({ message: "Error creating event", error: error.message });
   }
 }
 

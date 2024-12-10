@@ -3,19 +3,31 @@
 import db from "../database.js";
 
 // Function to create a new event
-export function createEvent(title, description, address, date) {
+export function createEvent(eventData) {
   return new Promise((resolve, reject) => {
     const stmt = db.prepare(`
             INSERT INTO events (title, description, address, date)
             VALUES (?, ?, ?, ?)
         `);
-    stmt.run(title, description, address, date, function (err) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ id: this.lastID, title, description, address, date });
+    stmt.run(
+      eventData.title,
+      eventData.description,
+      eventData.address,
+      eventData.date,
+      function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({
+            id: this.lastID,
+            title: eventData.title,
+            description: eventData.description,
+            address: eventData.address,
+            date: eventData.date,
+          });
+        }
       }
-    });
+    );
     stmt.finalize();
   });
 }
