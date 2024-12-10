@@ -10,12 +10,26 @@ import {
 export async function create(req, res) {
   const { title, description, address, date } = req.body;
 
-  if (!title) {
-    return res.status(400).json({ message: "Title is required" });
+  if (!title || !description || !address || !date) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
-  // Add this line to include the title field in the request body
-  req.body.title = title;
+  if (
+    title.trim() === "" ||
+    description.trim() === "" ||
+    address.trim() === "" ||
+    date.trim() === ""
+  ) {
+    return res
+      .status(400)
+      .json({ message: "All fields must have valid values" });
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return res
+      .status(400)
+      .json({ message: "Invalid date format. Please use YYYY-MM-DD" });
+  }
 
   try {
     const newEvent = await createEvent(req.body);
