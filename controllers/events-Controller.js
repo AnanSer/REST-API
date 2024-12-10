@@ -47,6 +47,32 @@ export async function edit(req, res) {
   const eventId = parseInt(req.params.id);
   const updatedData = req.body;
 
+  if (
+    !updatedData.title ||
+    !updatedData.description ||
+    !updatedData.address ||
+    !updatedData.date
+  ) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  if (
+    updatedData.title.trim() === "" ||
+    updatedData.description.trim() === "" ||
+    updatedData.address.trim() === "" ||
+    updatedData.date.trim() === ""
+  ) {
+    return res
+      .status(400)
+      .json({ message: "All fields must have valid values" });
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(updatedData.date)) {
+    return res
+      .status(400)
+      .json({ message: "Invalid date format. Please use YYYY-MM-DD" });
+  }
+
   try {
     const updated = await editEvent(eventId, updatedData);
     if (updated) {
@@ -59,7 +85,6 @@ export async function edit(req, res) {
     res.status(500).json({ message: "Error editing event" });
   }
 }
-
 // Function to handle deleting an event
 export async function deleteItem(req, res) {
   const eventId = parseInt(req.params.id);
