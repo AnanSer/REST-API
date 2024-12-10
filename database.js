@@ -48,7 +48,9 @@ const db = new sqlite3.Database(dbPath, (err) => {
       title TEXT NOT NULL,
       description TEXT,
       address TEXT,
-      date TEXT NOT NULL
+      date TEXT NOT NULL,
+      user_id INTEGER,
+      FOREIGN KEY (user_id) REFERENCES users (id)
     )
   `,
     (err) => {

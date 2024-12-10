@@ -47,6 +47,10 @@ export async function edit(req, res) {
   const eventId = parseInt(req.params.id);
   const updatedData = req.body;
 
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   if (
     !updatedData.title ||
     !updatedData.description ||
@@ -74,6 +78,15 @@ export async function edit(req, res) {
   }
 
   try {
+    const event = await getEventById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    if (event.user_id !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const updated = await editEvent(eventId, updatedData);
     if (updated) {
       res.status(200).json({ message: "Event updated successfully" });
@@ -89,7 +102,20 @@ export async function edit(req, res) {
 export async function deleteItem(req, res) {
   const eventId = parseInt(req.params.id);
 
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   try {
+    const event = await getEventById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    if (event.user_id !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
     const deleted = await deleteEvent(eventId);
     if (deleted) {
       res.status(200).json({ message: "Event deleted successfully" });

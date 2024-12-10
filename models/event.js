@@ -6,14 +6,15 @@ import db from "../database.js";
 export function createEvent(eventData) {
   return new Promise((resolve, reject) => {
     const stmt = db.prepare(`
-            INSERT INTO events (title, description, address, date)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO events (title, description, address, date, user_id)
+            VALUES (?, ?, ?, ?, ?)
         `);
     stmt.run(
       eventData.title,
       eventData.description,
       eventData.address,
       eventData.date,
+      eventData.userId,
       function (err) {
         if (err) {
           reject(err);
@@ -24,6 +25,7 @@ export function createEvent(eventData) {
             description: eventData.description,
             address: eventData.address,
             date: eventData.date,
+            userId: eventData.userId,
           });
         }
       }
