@@ -3,35 +3,24 @@
 import db from "../database.js";
 
 // Function to create a new event
-export function createEvent(eventData) {
-  return new Promise((resolve, reject) => {
-    const stmt = db.prepare(`
-            INSERT INTO events (title, description, address, date, user_id)
-            VALUES (?, ?, ?, ?, ?)
-        `);
-    stmt.run(
-      eventData.title,
-      eventData.description,
-      eventData.address,
-      eventData.date,
-      eventData.userId,
-      function (err) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve({
-            id: this.lastID,
-            title: eventData.title,
-            description: eventData.description,
-            address: eventData.address,
-            date: eventData.date,
-            userId: eventData.userId,
-          });
-        }
-      }
-    );
-    stmt.finalize();
-  });
+export function createEvent({ title, description, address, date, userId }) {
+  return new Promise((resolve, reject) =>
+    db.run(
+      `
+        INSERT INTO events (title, description, address, date, user_id)
+        VALUES (?, ?, ?, ?, ?)
+      `,
+      title,
+      description,
+      address,
+      date,
+      userId,
+      (err, { lastInsertRowid: id }) =>
+        err
+          ? reject(err)
+          : resolve({ id, title, description, address, date, userId })
+    )
+  );
 }
 
 // Function to edit an existing event by ID

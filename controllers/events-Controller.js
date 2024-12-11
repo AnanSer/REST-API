@@ -10,19 +10,12 @@ import {
 export async function create(req, res) {
   const { title, description, address, date } = req.body;
 
-  if (!title || !description || !address || !date) {
-    return res.status(400).json({ message: "All fields are required" });
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
-  if (
-    title.trim() === "" ||
-    description.trim() === "" ||
-    address.trim() === "" ||
-    date.trim() === ""
-  ) {
-    return res
-      .status(400)
-      .json({ message: "All fields must have valid values" });
+  if (!title || !description || !address || !date) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -32,7 +25,13 @@ export async function create(req, res) {
   }
 
   try {
-    const newEvent = await createEvent(req.body);
+    const newEvent = await createEvent({
+      title,
+      description,
+      address,
+      date,
+      userId: req.user.id,
+    });
     res.status(201).json(newEvent);
   } catch (error) {
     console.error("Error creating event:", error);
@@ -43,51 +42,24 @@ export async function create(req, res) {
 }
 
 // Function to handle editing an existing event
-export async function edit(req, res) {
-  const eventId = parseInt(req.params.id);
-  const updatedData = req.body;
+export const edit = async (req, res) => {
+  const { id } = req.params;
+  const { title, description, address, date } = req.body;
 
-  if (!req.user) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  if (!req.user) return res.status(401).json({ message: "Unauthorizedd" });
 
-  if (
-    !updatedData.title ||
-    !updatedData.description ||
-    !updatedData.address ||
-    !updatedData.date
-  ) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
-
-  if (
-    updatedData.title.trim() === "" ||
-    updatedData.description.trim() === "" ||
-    updatedData.address.trim() === "" ||
-    updatedData.date.trim() === ""
-  ) {
-    return res
-      .status(400)
-      .json({ message: "All fields must have valid values" });
-  }
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(updatedData.date)) {
-    return res
-      .status(400)
-      .json({ message: "Invalid date format. Please use YYYY-MM-DD" });
-  }
+  const errors = validateEvent({ title, description, address, date });
+  if (errors) return res.status(400).json({ message: errors.join(", ") });
 
   try {
-    const event = await getEventById(eventId);
-    if (!event) {
-      return res.status(404).json({ message: "Event not found" });
-    }
+    const event = await getEventById(id);
+    if (!event) return res.status(404).json({ message: "Event not found" });
 
     if (event.user_id !== req.user.id) {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    const updated = await editEvent(eventId, updatedData);
+    const updated = await editEvent(id, { title, description, address, date });
     if (updated) {
       res.status(200).json({ message: "Event updated successfully" });
     } else {
@@ -97,7 +69,23 @@ export async function edit(req, res) {
     console.error("Error editing event:", error);
     res.status(500).json({ message: "Error editing event" });
   }
-}
+};
+
+const validateEvent = ({ title, description, address, date }) => {
+  const errors = [];
+  if (!title || !description || !address || !date)
+    errors.push("All fields are required");
+  if (
+    title.trim() === "" ||
+    description.trim() === "" ||
+    address.trim() === "" ||
+    date.trim() === ""
+  )
+    errors.push("All fields must have valid values");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
+    errors.push("Invalid date format. Please use YYYY-MM-DD");
+  return errors;
+};
 // Function to handle deleting an event
 export async function deleteItem(req, res) {
   const eventId = parseInt(req.params.id);

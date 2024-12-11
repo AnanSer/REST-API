@@ -4,7 +4,7 @@ import { authenticate } from "../util/auth.js";
 
 const router = express.Router();
 
-router.post("/", events.create); // Use the create function
+router.post("/", authenticate, events.create); // Use the create function
 router.get("/:id", events.getSingle); // Use the getSingle function
 router.put("/:id", authenticate, events.edit); // Use the edit function
 router.delete("/:id", authenticate, events.deleteItem); // Use the deleteItem function
