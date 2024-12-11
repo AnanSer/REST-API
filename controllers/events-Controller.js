@@ -143,3 +143,48 @@ export async function getSingle(req, res) {
     res.status(500).json({ message: "Error retrieving event" });
   }
 }
+// Function to handle user registration for an event
+export async function register(req, res) {
+  const { eventId } = req.params;
+  const { userId } = req.user;
+
+  try {
+    const event = await getEventById(eventId);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+
+    const result = await attendEvent(userId, eventId);
+    if (result) {
+      res
+        .status(201)
+        .json({ message: "User registered for event successfully" });
+    } else {
+      res.status(409).json({ message: "User already registered for event" });
+    }
+  } catch (error) {
+    console.error("Error registering user for event:", error);
+    res.status(500).json({ message: "Error registering user for event" });
+  }
+}
+
+// Function to handle user unregistration for an event
+export async function unregister(req, res) {
+  const { eventId } = req.params;
+  const { userId } = req.user;
+
+  try {
+    const event = await getEventById(eventId);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+
+    const result = await unattendEvent(userId, eventId);
+    if (result) {
+      res
+        .status(200)
+        .json({ message: "User unregistered for event successfully" });
+    } else {
+      res.status(404).json({ message: "User not registered for event" });
+    }
+  } catch (error) {
+    console.error("Error unregistering user for event:", error);
+    res.status(500).json({ message: "Error unregistering user for event" });
+  }
+}

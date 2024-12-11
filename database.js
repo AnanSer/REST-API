@@ -51,7 +51,14 @@ const db = new sqlite3.Database(dbPath, (err) => {
       date TEXT NOT NULL,
       user_id INTEGER,
       FOREIGN KEY (user_id) REFERENCES users (id)
-    )
+    );
+    CREATE TABLE IF NOT EXISTS registrations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      event_id INTEGER,
+      user_id INTEGER,
+      FOREIGN KEY (event_id) REFERENCES events (id),
+      FOREIGN KEY (user_id) REFERENCES users (id)
+    );
   `,
     (err) => {
       if (err) {

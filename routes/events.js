@@ -9,4 +9,7 @@ router.get("/:id", events.getSingle); // Use the getSingle function
 router.put("/:id", authenticate, events.edit); // Use the edit function
 router.delete("/:id", authenticate, events.deleteItem); // Use the deleteItem function
 router.get("/", events.getAll); // Optional: Add a route to get all events
+router.post("/:id/register", authenticate, events.register);
+router.post("/:id/unregister", authenticate, events.unregister);
+
 export default router;
