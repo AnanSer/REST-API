@@ -1,6 +1,8 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
+const path = require("path");
+const fs = require("fs");
 
 // Add JWT secret key (store this in .env in production)
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
@@ -54,6 +56,12 @@ app.post("/generate-test-token", (req, res) => {
   const token = jwt.sign(testUser, JWT_SECRET, { expiresIn: "1h" });
   res.json({ token });
 });
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = "uploads";
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 // Start the server
 const PORT = process.env.PORT || 3000;

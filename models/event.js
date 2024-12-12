@@ -3,32 +3,53 @@
 import db from "../database.js";
 
 // Function to create a new event
-export function createEvent({ title, description, address, date, userId }) {
-  return new Promise((resolve, reject) =>
+export function createEvent({
+  title,
+  description,
+  address,
+  date,
+  image,
+  userId,
+}) {
+  return new Promise((resolve, reject) => {
+    const storagePath = `/path/to/storage/${image}`;
     db.run(
       `
-        INSERT INTO events (title, description, address, date, user_id)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO events (title, description, address, date, image, user_id)
+        VALUES (?, ?, ?, ?, ?, ?)
       `,
       title,
       description,
       address,
       date,
+      storagePath,
       userId,
-      (err, { lastInsertRowid: id }) =>
-        err
-          ? reject(err)
-          : resolve({ id, title, description, address, date, userId })
-    )
-  );
+      function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({
+            id: this.lastID,
+            title,
+            description,
+            address,
+            date,
+            image: storagePath,
+            userId,
+          });
+        }
+      }
+    );
+  });
 }
 
 // Function to edit an existing event by ID
 export function editEvent(id, updatedData) {
   return new Promise((resolve, reject) => {
+    const storagePath = `/path/to/storage/${updatedData.image}`;
     const stmt = db.prepare(`
             UPDATE events
-            SET title = ?, description = ?, address = ?, date = ?
+            SET title = ?, description = ?, address = ?, date = ?, image = ?, user_id = ?
             WHERE id = ?
         `);
     stmt.run(
@@ -36,6 +57,9 @@ export function editEvent(id, updatedData) {
       updatedData.description,
       updatedData.address,
       updatedData.date,
+      storagePath,
+      updatedData.image,
+      updatedData.userId,
       id,
       function (err) {
         if (err) {
