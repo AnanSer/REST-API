@@ -89,3 +89,45 @@ export function getEventById(id) {
     });
   });
 }
+
+// Function to register for an event
+export function registerForEvent(eventId, userId) {
+  return new Promise((resolve, reject) => {
+    db.run(
+      `
+        INSERT INTO registrations (event_id, user_id)
+        VALUES (?, ?)
+      `,
+      eventId,
+      userId,
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      }
+    );
+  });
+}
+
+// Function to unregister from an event
+export function unregisterFromEvent(eventId, userId) {
+  return new Promise((resolve, reject) => {
+    db.run(
+      `
+        DELETE FROM registrations
+        WHERE event_id = ? AND user_id = ?
+      `,
+      eventId,
+      userId,
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      }
+    );
+  });
+}

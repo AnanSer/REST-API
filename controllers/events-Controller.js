@@ -10,11 +10,13 @@ import {
 export async function create(req, res) {
   const { title, description, address, date } = req.body;
 
+  const image = req.file;
+
   if (!req.user) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  if (!title || !description || !address || !date) {
+  if (!title || !description || !address || !date || !image) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -30,6 +32,7 @@ export async function create(req, res) {
       description,
       address,
       date,
+      image:image.filename,
       userId: req.user.id,
     });
     res.status(201).json(newEvent);
@@ -46,6 +49,9 @@ export const edit = async (req, res) => {
   const { id } = req.params;
   const { title, description, address, date } = req.body;
 
+  const image = req.file;
+
+
   if (!req.user) return res.status(401).json({ message: "Unauthorizedd" });
 
   const errors = validateEvent({ title, description, address, date });
@@ -59,7 +65,7 @@ export const edit = async (req, res) => {
       return res.status(403).json({ message: "Forbidden" });
     }
 
-    const updated = await editEvent(id, { title, description, address, date });
+    const updated = await editEvent(id, { title, description, address, date , image: image.filename});
     if (updated) {
       res.status(200).json({ message: "Event updated successfully" });
     } else {
@@ -73,13 +79,15 @@ export const edit = async (req, res) => {
 
 const validateEvent = ({ title, description, address, date }) => {
   const errors = [];
-  if (!title || !description || !address || !date)
+  if (!title || !description || !address || !date )
     errors.push("All fields are required");
   if (
     title.trim() === "" ||
     description.trim() === "" ||
     address.trim() === "" ||
-    date.trim() === ""
+    date.trim() === ""||,
+    
+    
   )
     errors.push("All fields must have valid values");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date))
@@ -152,7 +160,7 @@ export async function register(req, res) {
     const event = await getEventById(eventId);
     if (!event) return res.status(404).json({ message: "Event not found" });
 
-    const result = await attendEvent(userId, eventId);
+    const result = await registerForEvent(userId, eventId);
     if (result) {
       res
         .status(201)
@@ -175,7 +183,7 @@ export async function unregister(req, res) {
     const event = await getEventById(eventId);
     if (!event) return res.status(404).json({ message: "Event not found" });
 
-    const result = await unattendEvent(userId, eventId);
+    const result = await unregisterFromEvent(userId, eventId);
     if (result) {
       res
         .status(200)
